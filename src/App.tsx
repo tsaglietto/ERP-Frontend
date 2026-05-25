@@ -1,26 +1,16 @@
 import React from 'react';
-import logo from './logo.svg';
-import './App.css';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import Login from './pages/Login/Login';
+import Layout from './components/Layout';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
-}
+const AppContent: React.FC = () => {
+  const { usuario, loading } = useAuth();
+  if (loading) return <div style={{ minHeight: '100vh', background: '#1a1a2e', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><p style={{ color: '#4CAF50', fontSize: '18px' }}>Cargando...</p></div>;
+  return usuario ? <Layout /> : <Login />;
+};
+
+const App: React.FC = () => (
+  <AuthProvider><AppContent /></AuthProvider>
+);
 
 export default App;
