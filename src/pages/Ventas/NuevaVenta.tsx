@@ -43,7 +43,14 @@ const NuevaVenta: React.FC<{ onVolver: () => void; onVentaCreada: () => void; do
   const data = tab.data;
 
   const updateData = (updates: Partial<VentaData>) => {
-    setTabs(prev => prev.map(t => t.id === tabActiva ? { ...t, data: { ...t.data, ...updates } } : t));
+    setTabs(prev => prev.map(t => {
+      if (t.id !== tabActiva) return t;
+      const newData = { ...t.data, ...updates };
+      const label = newData.cliente
+        ? newData.cliente.nombre.substring(0, 7).toUpperCase() + '...'
+        : 'Venta ' + t.id;
+      return { ...t, data: newData, label };
+    }));
   };
 
   const agregarTab = () => {

@@ -1,6 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
 import api from '../../services/api';
-import NuevaVenta from './NuevaVenta';
 
 interface LineaVenta { id: number; nombre_producto: string; codigo_producto: string; cantidad: string; precio_unitario: string; descuento: string; subtotal: string; }
 interface Venta { id: number; tipo: string; estado: string; total: string; subtotal: string; iva_total: string; monto_cobrado: string; fecha: string; cliente_id: number; cliente_nombre: string; notas: string; nro_orden_compra: string; documento_origen_id: number | null; lineas: LineaVenta[]; }
@@ -20,12 +19,10 @@ const MEDIOS_PAGO = ['Débito', 'Efectivo', 'Transferencia', 'Crédito 1 cuota',
 
 type Pestana = 'todas' | 'ventas' | 'remitos' | 'presupuestos' | 'pedidos' | 'nc_nd';
 
-const Ventas: React.FC = () => {
+const Ventas: React.FC<{ onNuevaVenta?: () => void }> = ({ onNuevaVenta }) => {
   const [pestana, setPestana] = useState<Pestana>('todas');
   const [ventas, setVentas] = useState<Venta[]>([]);
   const [loading, setLoading] = useState(true);
-  const [mostrarNueva, setMostrarNueva] = useState(false);
-  const [ventaPadre, setVentaPadre] = useState<Venta | null>(null);
   const [ventaDetalle, setVentaDetalle] = useState<Venta | null>(null);
   const [tooltip, setTooltip] = useState<{ venta: Venta; x: number; y: number } | null>(null);
   const [modalOP, setModalOP] = useState(false);
@@ -110,15 +107,11 @@ const Ventas: React.FC = () => {
     width: '100%', boxSizing: 'border-box'
   };
 
-  if (mostrarNueva) {
-    return <NuevaVenta onVolver={() => { setMostrarNueva(false); setVentaPadre(null); }} onVentaCreada={() => { cargarVentas(); setMostrarNueva(false); setVentaPadre(null); }} documentoPadreId={ventaPadre?.id} tipoPadre={ventaPadre?.tipo} clientePrecargado={ventaPadre ? { id: ventaPadre.cliente_id, nombre: ventaPadre.cliente_nombre, tipo: '', cuit: '', lista_precio_default: ''} : null} />;
-  }
-
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '16px' }}>
         <h1 style={{ color: '#fff', margin: 0, fontSize: '24px' }}>🛒 Ventas</h1>
-        <button onClick={() => setMostrarNueva(true)}
+        <button onClick={() => onNuevaVenta?.()}
           style={{ padding: '10px 20px', background: '#4CAF50', border: 'none', borderRadius: '8px', color: '#fff', cursor: 'pointer', fontWeight: 'bold', fontSize: '14px' }}>
           + Nueva venta
         </button>
@@ -317,7 +310,7 @@ const Ventas: React.FC = () => {
                 return (
                   <button
                     disabled={bloqueado}
-                    onClick={() => { setVentaPadre(ventaDetalle); setVentaDetalle(null); setMostrarNueva(true); }}
+                    onClick={() => { setVentaDetalle(null); onNuevaVenta?.(); }}
                     title={bloqueado ? 'No aplica para este tipo de documento' : 'Generar factura vinculada'}
                     style={{ padding: '9px 14px', borderRadius: '8px', border: '1px solid', fontSize: '12px', cursor: bloqueado ? 'not-allowed' : 'pointer', opacity: bloqueado ? 0.4 : 1, background: '#0f3460', borderColor: '#1a3a6a', color: '#fff' }}>
                     📄 Factura
@@ -330,7 +323,7 @@ const Ventas: React.FC = () => {
                 return (
                   <button
                     disabled={bloqueado}
-                    onClick={() => { setVentaPadre(ventaDetalle); setVentaDetalle(null); setMostrarNueva(true); }}
+                    onClick={() => { setVentaDetalle(null); onNuevaVenta?.(); }}
                     title={bloqueado ? 'No aplica para este tipo de documento' : 'Generar remito de entrega'}
                     style={{ padding: '9px 14px', borderRadius: '8px', border: '1px solid', fontSize: '12px', cursor: bloqueado ? 'not-allowed' : 'pointer', opacity: bloqueado ? 0.4 : 1, background: '#0f3460', borderColor: '#1a3a6a', color: '#2196F3' }}>
                     🚛 Remito
@@ -343,7 +336,7 @@ const Ventas: React.FC = () => {
                 return (
                   <button
                     disabled={bloqueado}
-                    onClick={() => { setVentaPadre(ventaDetalle); setVentaDetalle(null); setMostrarNueva(true); }}
+                    onClick={() => { setVentaDetalle(null); onNuevaVenta?.(); }}
                     title={bloqueado ? 'No aplica para este tipo de documento' : 'Generar pedido vinculado'}
                     style={{ padding: '9px 14px', borderRadius: '8px', border: '1px solid', fontSize: '12px', cursor: bloqueado ? 'not-allowed' : 'pointer', opacity: bloqueado ? 0.4 : 1, background: '#0f3460', borderColor: '#1a3a6a', color: '#FF9800' }}>
                     📋 Pedido
@@ -461,7 +454,7 @@ const Ventas: React.FC = () => {
             <div style={{ background: '#1a0000', border: '1px solid #ff6b6b', borderRadius: '8px', padding: '12px', marginBottom: '20px' }}>
               <div style={{ color: '#ff6b6b', fontSize: '12px' }}>⚠ La nota de crédito queda vinculada a esta venta/factura. Según AFIP, una NC sin factura asociada no es válida.</div>
             </div>
-            <button onClick={() => { setModalNC(false); setMostrarNueva(true); }}
+            <button onClick={() => { setModalNC(false); onNuevaVenta?.(); }}
               style={{ width: '100%', padding: '12px', background: '#ff6b6b', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 'bold', cursor: 'pointer', fontSize: '14px' }}>
               Continuar → crear NC
             </button>

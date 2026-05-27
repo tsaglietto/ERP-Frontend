@@ -1,27 +1,23 @@
 import React from 'react';
 import { useAuth } from '../context/AuthContext';
-
 interface MenuItem { icon: string; label: string; path: string; permiso?: string; }
-
 const MENU: MenuItem[] = [
   { icon: '📊', label: 'Dashboard', path: '/dashboard' },
+  { icon: '➕', label: 'Nueva Venta', path: '/nueva-venta', permiso: 'ventas' },
   { icon: '🛒', label: 'Ventas', path: '/ventas', permiso: 'ventas' },
   { icon: '📦', label: 'Productos', path: '/productos', permiso: 'productos_ver' },
   { icon: '👥', label: 'Clientes', path: '/clientes', permiso: 'clientes' },
   { icon: '💰', label: 'Caja', path: '/caja', permiso: 'caja' },
   { icon: '⚙', label: 'Configuración', path: '/configuracion' },
 ];
-
 const Sidebar: React.FC<{ paginaActual: string; onNavegar: (path: string) => void }> = ({ paginaActual, onNavegar }) => {
   const { usuario, logout } = useAuth();
-
   const tienePermiso = (permiso?: string) => {
     if (!permiso) return true;
     if (!usuario) return false;
     const permisos = usuario.permisos || [];
     return permisos.includes('todo') || permisos.includes(permiso);
   };
-
   return (
     <div style={{ width: '240px', minHeight: '100vh', background: '#16213e', display: 'flex', flexDirection: 'column', borderRight: '1px solid #0f3460' }}>
       <div style={{ padding: '24px 20px', borderBottom: '1px solid #0f3460' }}>
@@ -31,9 +27,17 @@ const Sidebar: React.FC<{ paginaActual: string; onNavegar: (path: string) => voi
       <div style={{ padding: '12px 0', flex: 1 }}>
         {MENU.filter(m => tienePermiso(m.permiso)).map(item => (
           <button key={item.path} onClick={() => onNavegar(item.path)}
-            style={{ width: '100%', padding: '12px 20px', border: 'none', background: paginaActual === item.path ? '#0f3460' : 'transparent',
-              color: paginaActual === item.path ? '#4CAF50' : '#aaa', cursor: 'pointer', textAlign: 'left', fontSize: '15px',
-              borderLeft: paginaActual === item.path ? '3px solid #4CAF50' : '3px solid transparent', display: 'flex', alignItems: 'center', gap: '10px' }}>
+            style={{
+              width: '100%', padding: '12px 20px', border: 'none',
+              background: item.path === '/nueva-venta'
+                ? (paginaActual === item.path ? '#1a4a1a' : '#0d2b0d')
+                : (paginaActual === item.path ? '#0f3460' : 'transparent'),
+              color: item.path === '/nueva-venta' ? '#4CAF50' : (paginaActual === item.path ? '#4CAF50' : '#aaa'),
+              cursor: 'pointer', textAlign: 'left' as const, fontSize: '15px',
+              borderLeft: paginaActual === item.path ? '3px solid #4CAF50' : '3px solid transparent',
+              display: 'flex', alignItems: 'center', gap: '10px',
+              fontWeight: item.path === '/nueva-venta' ? 'bold' : 'normal',
+            }}>
             <span>{item.icon}</span>{item.label}
           </button>
         ))}
@@ -48,5 +52,4 @@ const Sidebar: React.FC<{ paginaActual: string; onNavegar: (path: string) => voi
     </div>
   );
 };
-
 export default Sidebar;
