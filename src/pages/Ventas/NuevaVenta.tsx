@@ -28,7 +28,7 @@ const nuevaVentaData = (): VentaData => ({
 
 let tabCounter = 1;
 
-const NuevaVenta: React.FC<{ onVolver: () => void; onVentaCreada: () => void }> = ({ onVolver, onVentaCreada }) => {
+const NuevaVenta: React.FC<{ onVolver: () => void; onVentaCreada: () => void; documentoPadreId?: number; tipoPadre?: string; clientePrecargado?: Cliente | null; lineasPrecargadas?: LineaVenta[] }> = ({ onVolver, onVentaCreada, documentoPadreId, tipoPadre, clientePrecargado, lineasPrecargadas }) => {
   const [tabs, setTabs] = useState<VentaTab[]>([{ id: '1', label: 'Venta 1', data: nuevaVentaData() }]);
   const [tabActiva, setTabActiva] = useState('1');
   const [clientesSugeridos, setClientesSugeridos] = useState<Cliente[]>([]);
@@ -60,6 +60,13 @@ const NuevaVenta: React.FC<{ onVolver: () => void; onVentaCreada: () => void }> 
     setTabs(nuevas);
     if (tabActiva === id) setTabActiva(nuevas[nuevas.length - 1].id);
   };
+
+
+  // Cargar datos precargados si vienen de otro documento
+  useEffect(() => {
+    if (clientePrecargado) updateData({ cliente: clientePrecargado });
+    if (lineasPrecargadas && lineasPrecargadas.length > 0) updateData({ lineas: lineasPrecargadas });
+  }, []);
 
   useEffect(() => {
     if (data.buscarCliente.length < 2) { setClientesSugeridos([]); return; }
